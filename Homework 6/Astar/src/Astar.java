@@ -30,6 +30,7 @@ public class Astar {
 					else dist = Misplaced(state1);		
 					addState(state1,dist,state);
 					visited.put(state1, index);
+					if( llist.size()>500)   llist.removeLast();
 					//System.out.println(state1 + " " +dist);
 					
 			}
@@ -45,6 +46,7 @@ public class Astar {
 					else dist = Misplaced(state2);				
 						addState(state2,dist,state);
 						visited.put(state2, index);
+						if( llist.size()>500)   llist.removeLast();
 					//System.out.println(state2 + " " + dist);
 				}
 			//else  System.out.println("CONTAIN: "+state2);
@@ -59,7 +61,7 @@ public class Astar {
 				else dist = Misplaced(state3);				
 				addState(state3,dist,state);
 				visited.put(state3, index);
-
+				if( llist.size()>500)   llist.removeLast();
 				//System.out.println(state3 + " " + dist);
 			}
 			//else  System.out.println("CONTAIN: "+state3);
@@ -72,9 +74,10 @@ public class Astar {
 			state4 = new String(S);
 			if(!visited.containsKey(state4)) {
 				if(MANHATTAN) dist = Manhattan(state4);
-				else dist = Misplaced(state4);				
+				else dist = Misplaced(state4);		
 				addState(state4,dist,state);
 				visited.put(state4, index);
+				if( llist.size()>500)   llist.removeLast();
 				//System.out.println(state4 + " " + dist);
 			}
 			//else  System.out.println("CONTAIN: "+state4);
@@ -119,6 +122,7 @@ public class Astar {
 		
 		
 	}
+	
 	private static int Misplaced(String state) {
 		int missed=0;
 		String correct = "123456789ABCDEF0";
@@ -147,48 +151,71 @@ public class Astar {
 			}llist.add(i,temp);
 		}	
 	}
+	private static void getPath(String init) {
+		String correct= "123456789ABCDEF0";
+		String temp=correct;
+		int index;
+		char tempchar;
+		char [] S;
+		System.out.println("Path is:     (backwards)");
+		System.out.print(15);
+		while(! Objects.equals(init,temp)) {
+			S = temp.toCharArray();
+			
+			index = finished.get(temp);
+			//System.out.println(temp + " " + index);
+			tempchar = S[index];
+			S[index]='0';  	S[temp.indexOf('0')] = tempchar;
+			System.out.print(" " + index);
+			temp = new String(S);
+			//System.out.println("new string: " +temp);
+		}
+			
+	}
 	public static void main(String[] args) {
 		llist = new LinkedList<node>();
+		int index;
 		boolean FOUND=false;
 		String correct = "123456789ABCDEF0";
-		String init_state = "E2547CF80B69A3D1";
+		String init_state = "69E1BA0CF5237D84";
 		int prev_index=init_state.indexOf('0');
-		MANHATTAN = true;
+		MANHATTAN = false;
 		//23401567ABC89DEF   SELFMADE
-		//69E1BA0CF5237D84
+		//69E1BA0CF5237D84	SOLVABLE BY MAN IN 3SEC, MISPLACED 1sec
 		//F21C850B49A73ED6
 		//123456789ABCD0EF
 		//6C7A89B0F2C5E314
 		//123456789EBFDA0C		SOLVEABLE IN 2SECONDS
-		//E172A48D6C9B5F30
+		//E172A48D6C9B5F30		SOLVABLE MANHATTAN 2SEC, MISPLACED 0.5SEC
 		//120F9C457B683EDA
-		//E2547CF80B69A3D1
+		//E2547CF80B69A3D1	SOLVABLE BY MISPLACED IN 2SEC
 		System.out.println("Initial state = "+init_state);
 		node temp1;
 		generate(init_state);
 		finished.put(init_state,prev_index);
 		
 		while(llist.size() != 0) {
-			System.out.println();
-			System.out.println("Llist size: " + llist.size());
+			//System.out.println("Llist size: " + llist.size());
 			temp1 = llist.remove();
 			if( Objects.equals(temp1.state,correct)) {
+				index= visited.get(temp1.state);
+				finished.put(temp1.state,index);			
+				//System.out.println("Finished state: " + temp1.state+" "+ index);
 				System.out.println("FOUND SOLUTION");
+				getPath(init_state);
+				
+				FOUND=true;
 				break;
 			}
-			System.out.println( "Chosen state: " + temp1.state +" "+ temp1.val);
-			if(!finished.containsKey(temp1.state)) {
-				
-				generate(temp1.state);			
-				finished.put(temp1.state, prev_index);
-				//System.out.println("Finished state: " + temp1.state+" "+ prev_index);
-				System.out.println(llist.peekLast().val);
-			}
+			//System.out.println( "Chosen state: " + temp1.state +" "+ temp1.val);
+			if(!finished.containsKey(temp1.state)) {		
+				generate(temp1.state);	
+				index=visited.get(temp1.state);				
+				finished.put(temp1.state, index);
+			}		
 			
-			prev_index = temp1.state.indexOf('0');
-		
 			
 		}
-		
+
 	}
 }
